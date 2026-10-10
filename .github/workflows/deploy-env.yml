@@ -1,0 +1,134 @@
+name: Deploy to ECS
+run-name: Deploy ${{ inputs.image-tag }} to ${{ inputs.environment }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - prod
+      image-tag:
+        description: "Image tag in ECR to deploy (short commit SHA, e.g. a1b2c3d)"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      AWS_REGION: eu-central-1
+      NAME: tabriz-${{ inputs.environment }}
+      ECR_REPOSITORY: tabriz-${{ inputs.environment }}/web
+      CONTAINER_NAME: tabriz
+      IMAGE_TAG: ${{ inputs.image-tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Resolve deploy targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! aws ecr describe-images \
+              --repository-name "${ECR_REPOSITORY}" \
+              --image-ids imageTag="${IMAGE_TAG}" >/dev/null; then
+            echo "::error::Image ${ECR_REPOSITORY}:${IMAGE_TAG} not found. Run 'Build and Publish' for ${{ inputs.environment }} first."
+            exit 1
+          fi
+
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          {
+            echo "ACCOUNT_ID=${ACCOUNT_ID}"
+            echo "IMAGE=${{ steps.ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+            echo "CLUSTER=${NAME}"
+            echo "SERVICE=${NAME}-web"
+            echo "FAMILY=${NAME}-web"
+          } >> "$GITHUB_ENV"
+
+      - name: Set task definition family
+        shell: bash
+        run: |
+          jq --arg family "${FAMILY}" '.family = $family' tasks/task-definition.json > tasks/task-definition-rendered.json
+          mv tasks/task-definition-rendered.json tasks/task-definition.json
+
+      - name: Render task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.9.0
+        with:
+          task-definition: tasks/task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ env.IMAGE }}
+          execution-role-arn: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/${{ env.NAME }}-ecs-task-execution
+          task-role-arn: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/${{ env.NAME }}-ecs-task
+          environment-variables: |
+            ENVIRONMENT=${{ inputs.environment }}
+          docker-labels: |
+            environment=${{ inputs.environment }}
+            version=${{ inputs.image-tag }}
+          secrets: |
+            DB_CREDENTIALS=arn:aws:secretsmanager:${{ env.AWS_REGION }}:${{ env.ACCOUNT_ID }}:secret:tabriz/${{ inputs.environment }}/db
+            REDIS_PARAMS=arn:aws:secretsmanager:${{ env.AWS_REGION }}:${{ env.ACCOUNT_ID }}:secret:tabriz/${{ inputs.environment }}/redis
+          log-configuration-log-driver: awslogs
+          log-configuration-options: |
+            awslogs-group=/ecs/${{ env.SERVICE }}
+            awslogs-region=${{ env.AWS_REGION }}
+            awslogs-stream-prefix=ecs
+
+      - name: Print rendered task definition
+        shell: bash
+        run: cat "${{ steps.render-task-def.outputs.task-definition }}"
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          cluster: ${{ env.CLUSTER }}
+          service: ${{ env.SERVICE }}
+          wait-for-service-stability: true
+          wait-for-minutes: 10
+
+      - name: Set Deploy Job Summary
+        shell: bash
+        run: |
+          {
+            echo "### Deployed to ${{ inputs.environment }}"
+            echo "| Key | Value |"
+            echo "|---|---|"
+            echo "| Image | \`${IMAGE}\` |"
+            echo "| ECS Cluster | \`${CLUSTER}\` |"
+            echo "| ECS Service | \`${SERVICE}\` |"
+            echo "| Task Family | \`${FAMILY}\` |"
+          } >> "${GITHUB_STEP_SUMMARY}"

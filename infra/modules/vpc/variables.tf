@@ -22,11 +22,14 @@ variable "public_subnets" {
   description = "List of public subnet CIDR blocks."
   type        = list(string)
 }
-
+variable "database_subnets" {
+  description = "List of database subnet CIDR blocks."
+  type        = list(string)
+}
 variable "az_count" {
   description = "Number of availability zones to spread subnets across."
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "single_nat_gateway" {

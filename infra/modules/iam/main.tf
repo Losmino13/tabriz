@@ -14,3 +14,21 @@ module "iam_role" {
 
   tags = var.tags
 }
+
+module "github_deploy_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "~> 6"
+
+  name            = "${local.name}-github-deploy"
+  use_name_prefix = false
+  description     = "GitHub Actions deploy role for ${local.name}: ECR push, ECS deploy"
+
+  # Only jobs running in the matching GitHub environment may assume this role.
+  enable_github_oidc = true
+  oidc_subjects      = ["${var.github_repository}:environment:${coalesce(var.github_environment, var.env)}"]
+
+  create_inline_policy           = true
+  source_inline_policy_documents = [data.aws_iam_policy_document.github_deploy.json]
+
+  tags = var.tags
+}

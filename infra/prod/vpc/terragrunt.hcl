@@ -12,6 +12,7 @@ inputs = {
   single_nat_gateway = local.env.single_nat_gateway
   private_subnets    = local.env.private_subnets
   public_subnets     = local.env.public_subnets
+  database_subnets   = local.env.database_subnets
   tags               = local.env.tags
 }
 

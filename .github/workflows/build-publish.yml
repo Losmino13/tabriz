@@ -1,0 +1,109 @@
+name: Build and Publish
+run-name: Build ${{ github.ref_name }} for ${{ inputs.environment }}${{ inputs.deploy && ' and deploy' || '' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (selects the ECR repository and AWS role)"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - prod
+      deploy:
+        description: "Deploy the image to ECS after publishing"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: tabriz-${{ inputs.environment }}/web
+
+jobs:
+  build:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      image-tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Compute image tag
+        id: version
+        shell: bash
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Check if image already exists
+        id: exists
+        shell: bash
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if aws ecr describe-images \
+              --repository-name "${ECR_REPOSITORY}" \
+              --image-ids imageTag="${TAG}" >/dev/null 2>&1; then
+            echo "Image ${ECR_REPOSITORY}:${TAG} already exists, skipping build."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Buildx
+        if: steps.exists.outputs.exists == 'false'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push Docker image
+        if: steps.exists.outputs.exists == 'false'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.version.outputs.tag }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=${{ inputs.environment }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.environment }}
+
+      - name: Set Build Job Summary
+        shell: bash
+        run: |
+          {
+            echo "### Build Details"
+            echo "| Key | Value |"
+            echo "|---|---|"
+            echo "| Environment | \`${{ inputs.environment }}\` |"
+            echo "| Image | \`${{ steps.ecr.outputs.registry }}/${ECR_REPOSITORY}:${{ steps.version.outputs.tag }}\` |"
+            echo "| Commit | \`${GITHUB_SHA}\` |"
+            echo "| Rebuilt | \`$([[ '${{ steps.exists.outputs.exists }}' == 'true' ]] && echo no || echo yes)\` |"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: inputs.deploy
+    uses: ./.github/workflows/deploy-env.yml
+    with:
+      environment: ${{ inputs.environment }}
+      image-tag: ${{ needs.build.outputs.image-tag }}
+    secrets: inherit

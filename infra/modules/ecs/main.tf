@@ -2,7 +2,7 @@ module "cluster" {
   source  = "terraform-aws-modules/ecs/aws//modules/cluster"
   version = "~> 7.6"
 
-  name = "${var.project}-${var.env}"
+  name = local.name
 
   setting = [
     {

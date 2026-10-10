@@ -15,6 +15,9 @@ variable "secrets" {
     username          = optional(string)
     generate_password = optional(bool, false)
     password_length   = optional(number, 32)
+    password_special  = optional(string, "@#$%^&*()_+")
+    password_key      = optional(string, "password")
+    values            = optional(map(string), {})
   }))
   default = {}
 }

@@ -85,3 +85,66 @@ data "aws_iam_policy_document" "ecs_task" {
     }
   }
 }
+
+# Used by GitHub Actions: push images to ECR and roll out new task definitions.
+data "aws_iam_policy_document" "github_deploy" {
+  statement {
+    sid       = "ECRAuth"
+    effect    = "Allow"
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ECRPush"
+    effect = "Allow"
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchGetImage",
+      "ecr:CompleteLayerUpload",
+      "ecr:DescribeImages",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart",
+    ]
+    resources = var.ecr_repository_arns
+  }
+
+  statement {
+    sid    = "ECSTaskDefinition"
+    effect = "Allow"
+    actions = [
+      "ecs:DescribeTaskDefinition",
+      "ecs:RegisterTaskDefinition",
+      "ecs:TagResource",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "ECSService"
+    effect = "Allow"
+    actions = [
+      "ecs:DescribeServices",
+      "ecs:UpdateService",
+    ]
+    resources = ["arn:aws:ecs:${local.region}:${local.account_id}:service/${local.name}/*"]
+  }
+
+  statement {
+    sid     = "PassECSTaskRoles"
+    effect  = "Allow"
+    actions = ["iam:PassRole"]
+    resources = [
+      module.iam_role["ecs_task_execution"].arn,
+      module.iam_role["ecs_task"].arn,
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}

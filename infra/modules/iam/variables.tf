@@ -30,3 +30,14 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "github_repository" {
+  description = "GitHub repository (owner/name) allowed to deploy via OIDC."
+  type        = string
+}
+
+variable "github_environment" {
+  description = "GitHub environment the deploy job must run in; defaults to env."
+  type        = string
+  default     = null
+}
