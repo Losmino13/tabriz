@@ -30,6 +30,7 @@ jobs:
   build:
     name: Build and push image
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: ${{ inputs.environment }}
     outputs:
       image-tag: ${{ steps.version.outputs.tag }}
@@ -51,6 +52,7 @@ jobs:
       - name: Login to Amazon ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
+        timeout-minutes: 3
 
       - name: Check if image already exists
         id: exists

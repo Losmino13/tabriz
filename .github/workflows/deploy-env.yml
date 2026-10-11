@@ -37,6 +37,7 @@ jobs:
   deploy:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: ${{ inputs.environment }}
     env:
       AWS_REGION: eu-central-1
@@ -54,10 +55,6 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
       - name: Resolve deploy targets
         shell: bash
         run: |
@@ -72,7 +69,7 @@ jobs:
           ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
           {
             echo "ACCOUNT_ID=${ACCOUNT_ID}"
-            echo "IMAGE=${{ steps.ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+            echo "IMAGE=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}"
             echo "CLUSTER=${NAME}"
             echo "SERVICE=${NAME}-web"
             echo "FAMILY=${NAME}-web"
