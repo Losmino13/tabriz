@@ -16,10 +16,10 @@ locals {
     "10.20.55.0/24",
     "10.20.66.0/24"
   ]
-  container_insights  = true
+  container_insights  = false
   fargate_weight      = 1
   fargate_spot_weight = 0
-  log_retention_days  = 30
+  log_retention_days  = 7
 
   app_container_name = "tabriz"
   app_cpu            = 256
@@ -33,7 +33,7 @@ locals {
   autoscaling_cpu_low_threshold  = 10
 
   ecr_repositories         = ["web"]
-  ecr_image_tag_mutability = "IMMUTABLE"
+  ecr_image_tag_mutability = "MUTABLE"
   ecr_force_delete         = false
   ecr_keep_image_count     = 30
 
@@ -59,7 +59,7 @@ locals {
       }
     }
   }
-  secrets_recovery_window_in_days = 30
+  secrets_recovery_window_in_days = 7
 
   redis_port = 6379
 
