@@ -32,7 +32,7 @@ variable "tags" {
 }
 
 variable "github_repository" {
-  description = "GitHub repository (owner/name) allowed to deploy via OIDC."
+  description = "GitHub repository as it appears in the OIDC sub claim: owner/name, or owner@id/name@id with immutable subjects."
   type        = string
 }
 

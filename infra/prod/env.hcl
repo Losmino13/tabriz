@@ -37,7 +37,7 @@ locals {
   ecr_force_delete         = false
   ecr_keep_image_count     = 30
 
-  github_repository = "Losmino13/tabriz"
+  github_repository = "Losmino13@50230540/tabriz@1410250410"
   enable_ecs_exec   = false
 
   secrets = {
