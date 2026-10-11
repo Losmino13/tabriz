@@ -66,7 +66,7 @@ locals {
   alb_app_port                   = 80
   alb_health_check_path          = "/"
   alb_certificate_arn            = null
-  alb_enable_deletion_protection = true
+  alb_enable_deletion_protection = false
 
   tags = {
     Environment = local.env
