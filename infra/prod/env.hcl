@@ -3,7 +3,7 @@ locals {
 
   vpc_cidr           = "10.20.0.0/16"
   az_count           = 2
-  single_nat_gateway = false
+  single_nat_gateway = true
   private_subnets = [
     "10.20.11.0/24",
     "10.20.22.0/24"

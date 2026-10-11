@@ -7,5 +7,7 @@ module "redis_sg" {
   vpc_id          = module.vpc.vpc_id
   use_name_prefix = false
 
+  enable_exclusive_rules = false
+
   tags = var.tags
 }

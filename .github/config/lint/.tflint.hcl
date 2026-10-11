@@ -1,9 +1,9 @@
 config {
-  plugin_dir = "~/.tflint.d/plugins"
+  plugin_dir          = "~/.tflint.d/plugins"
   force               = false
   call_module_type    = "local"
   disabled_by_default = false
-  format = "json"
+  format              = "json"
 }
 
 plugin "terraform" {
@@ -12,22 +12,16 @@ plugin "terraform" {
 }
 
 plugin "aws" {
-    enabled = true
-    version = "0.39.0"
-    source  = "github.com/terraform-linters/tflint-ruleset-aws"
+  enabled = true
+  version = "0.39.0"
+  source  = "github.com/terraform-linters/tflint-ruleset-aws"
 }
 
 rule "aws_resource_missing_tags" {
   enabled = true
-  # Specify your custom tags as a list of strings
   tags = [
-    "Product",
+    "Project",
     "Environment",
-    "Component",
-    "Layer"
+    "ManagedBy",
   ]
-  # You can also exclude specific resource types if needed
-  # exclude = [
-  #   "aws_iam_policy"
-  #]
 }

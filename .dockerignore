@@ -1,0 +1,11 @@
+.git
+.gitignore
+.github
+.pre-commit-config.yaml
+.dockerignore
+Dockerfile
+infra
+tasks
+scss
+*.md
+scripts
