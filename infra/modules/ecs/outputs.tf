@@ -25,5 +25,5 @@ output "task_definition_family" {
 
 output "service_security_group_id" {
   description = "Security group of the ECS service tasks."
-  value       = module.service.security_group_id
+  value       = aws_security_group.service.id
 }

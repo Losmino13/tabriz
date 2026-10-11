@@ -8,7 +8,7 @@ resource "aws_appautoscaling_target" "service" {
   min_capacity = var.autoscaling_min_capacity
   max_capacity = var.autoscaling_max_capacity
 
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_appautoscaling_policy" "scale_out" {
@@ -73,7 +73,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
 
   alarm_actions = [aws_appautoscaling_policy.scale_out[0].arn]
 
-  tags = var.tags
+  tags = local.tags
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_low" {
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 
   alarm_actions = [aws_appautoscaling_policy.scale_in[0].arn]
 
-  tags = var.tags
+  tags = local.tags
 }
 
 # resource "aws_cloudwatch_metric_alarm" "memory_high" {
@@ -119,7 +119,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 #
 #   alarm_actions = [aws_appautoscaling_policy.scale_out[0].arn]
 #
-#   tags = var.tags
+#   tags = local.tags
 # }
 #
 # resource "aws_cloudwatch_metric_alarm" "memory_low" {
@@ -142,5 +142,5 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 #
 #   alarm_actions = [aws_appautoscaling_policy.scale_in[0].arn]
 #
-#   tags = var.tags
+#   tags = local.tags
 # }

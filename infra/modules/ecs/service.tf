@@ -66,25 +66,8 @@ module "service" {
   subnet_ids       = var.private_subnets
   assign_public_ip = false
 
-  vpc_id                = var.vpc_id
-  create_security_group = true
-  security_group_name   = "${local.service_name}-ecs"
-  security_group_ingress_rules = {
-    app_from_alb = {
-      description                  = "App port from ALB only"
-      from_port                    = var.container_port
-      to_port                      = var.container_port
-      ip_protocol                  = "tcp"
-      referenced_security_group_id = var.alb_security_group_id
-    }
-  }
-  security_group_egress_rules = {
-    all_outbound = {
-      description = "All outbound (ECR, Secrets Manager, CloudWatch via NAT)"
-      ip_protocol = "-1"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-  }
+  create_security_group = false
+  security_group_ids    = [aws_security_group.service.id]
 
   create_task_exec_iam_role = false
   task_exec_iam_role_arn    = var.task_exec_iam_role_arn
@@ -92,5 +75,5 @@ module "service" {
   create_tasks_iam_role = false
   tasks_iam_role_arn    = var.tasks_iam_role_arn
 
-  tags = var.tags
+  tags = local.tags
 }

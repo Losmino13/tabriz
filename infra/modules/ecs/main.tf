@@ -24,5 +24,5 @@ module "cluster" {
 
   cloudwatch_log_group_retention_in_days = var.log_retention_days
 
-  tags = var.tags
+  tags = local.tags
 }
