@@ -14,7 +14,7 @@ dependency "vpc" {
     private_subnets         = ["subnet-00000000000000001", "subnet-00000000000000002"]
     redis_security_group_id = "sg-00000000000000001"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
   mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
@@ -25,7 +25,7 @@ dependency "alb" {
     alb_security_group_id = "sg-00000000000000000"
     target_group_arn      = "arn:aws:elasticloadbalancing:eu-central-1:000000000000:targetgroup/mock/0000000000000000"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
   mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
@@ -36,7 +36,7 @@ dependency "iam" {
     ecs_task_execution_role_arn = "arn:aws:iam::000000000000:role/mock-exec"
     ecs_task_role_arn           = "arn:aws:iam::000000000000:role/mock-task"
   }
-  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "destroy"]
   mock_outputs_merge_strategy_with_state  = "shallow"
 }
 

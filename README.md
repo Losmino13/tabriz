@@ -169,10 +169,19 @@ cd infra/dev
 terragrunt run --all destroy
 ```
 
-Prod has ALB deletion protection. Disable it first:
+Prod has ALB deletion protection and an ECR repository without `force_delete`. Before destroying:
 
 1. Set `alb_enable_deletion_protection = false` in `infra/prod/env.hcl`.
 2. `cd infra/prod/alb && terragrunt apply`
-3. `cd infra/prod && terragrunt run --all destroy`
+3. Delete the images from the prod ECR repository:
+
+   ```bash
+   aws ecr batch-delete-image --region eu-central-1 --repository-name tabriz-prod/web \
+     --image-ids "$(aws ecr list-images --region eu-central-1 --repository-name tabriz-prod/web --query 'imageIds[*]' --output json)"
+   ```
+
+4. `cd infra/prod && terragrunt run --all destroy`
+
+A partially failed `run --all destroy` can be re-run: dependency outputs fall back to mocks for units that are already gone.
 
 Destroy `global/github-oidc` last, after both environments are gone. ECS task definition revisions stay in AWS (`skip_destroy = true`).
