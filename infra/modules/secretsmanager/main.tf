@@ -1,4 +1,3 @@
-# Ephemeral: the generated password is written to Secrets Manager but never stored in state.
 ephemeral "random_password" "this" {
   for_each = { for k, v in var.secrets : k => v if v.generate_password }
 
@@ -9,7 +8,7 @@ ephemeral "random_password" "this" {
 
 module "secrets_manager" {
   source  = "terraform-aws-modules/secrets-manager/aws"
-  version = "~> 2"
+  version = "~> 2.0"
 
   for_each = var.secrets
 
@@ -18,7 +17,6 @@ module "secrets_manager" {
   recovery_window_in_days = var.recovery_window_in_days
   enable_rotation         = false
 
-  # Static values (host, port, ...) plus optional username and generated password.
   secret_string_wo = jsonencode(merge(
     each.value.values,
     each.value.username != null ? { username = each.value.username } : {},

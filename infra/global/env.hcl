@@ -1,4 +1,3 @@
-# Account-wide resources shared by dev and prod.
 locals {
   env = "global"
 

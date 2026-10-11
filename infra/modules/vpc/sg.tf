@@ -1,5 +1,3 @@
-# Security group for the Redis (ElastiCache) replication group.
-# Attach it to the replication group; ingress from the ECS service is added in modules/ecs.
 module "redis_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 6.0"

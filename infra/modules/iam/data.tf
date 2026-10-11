@@ -21,7 +21,6 @@ data "aws_iam_policy_document" "ecs_tasks_trust" {
   }
 }
 
-# Used by the ECS agent: pull images, write logs, inject secrets into containers.
 data "aws_iam_policy_document" "ecs_task_execution" {
   statement {
     sid       = "ECRAuth"
@@ -67,7 +66,6 @@ data "aws_iam_policy_document" "ecs_task_execution" {
   }
 }
 
-# Used by the application itself at runtime.
 data "aws_iam_policy_document" "ecs_task" {
   dynamic "statement" {
     for_each = var.enable_ecs_exec ? [1] : []
@@ -86,7 +84,6 @@ data "aws_iam_policy_document" "ecs_task" {
   }
 }
 
-# Used by GitHub Actions: push images to ECR and roll out new task definitions.
 data "aws_iam_policy_document" "github_deploy" {
   statement {
     sid       = "ECRAuth"

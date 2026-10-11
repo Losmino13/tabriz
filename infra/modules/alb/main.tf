@@ -1,6 +1,6 @@
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 10"
+  version = "~> 10.0"
 
   name                       = local.name
   vpc_id                     = var.vpc_id
@@ -25,7 +25,6 @@ module "alb" {
     }
   }
 
-  # Without a certificate HTTP forwards to the app; with one it redirects to HTTPS.
   listeners = merge(
     {
       http = {

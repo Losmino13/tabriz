@@ -14,7 +14,6 @@ module "service" {
     operating_system_family = "LINUX"
   }
 
-  # Placeholder container; the app repo CI/CD registers the real task definition.
   container_definitions = {
     (var.container_name) = {
       image                  = var.bootstrap_image
@@ -35,13 +34,12 @@ module "service" {
     }
   }
 
-  # CI/CD owns task definition revisions; Terraform must not roll them back.
   ignore_task_definition_changes = true
   track_latest                   = false
   skip_destroy                   = true
 
   desired_count                     = var.desired_count
-  enable_autoscaling                = false # managed in autoscaling.tf
+  enable_autoscaling                = false
   health_check_grace_period_seconds = 60
   enable_execute_command            = var.enable_execute_command
 

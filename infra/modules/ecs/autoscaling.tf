@@ -1,7 +1,3 @@
-# Step scaling of the ECS service on CloudWatch alarms:
-#   CPU >= scale_out threshold -> +1 task,  CPU <= scale_in threshold -> -1 task.
-# Memory-based scaling is prepared below but commented out.
-
 resource "aws_appautoscaling_target" "service" {
   count = var.enable_autoscaling ? 1 : 0
 
@@ -57,8 +53,6 @@ resource "aws_appautoscaling_policy" "scale_in" {
   }
 }
 
-# ---------------------------------------------------------------------------- CPU
-
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   count = var.enable_autoscaling ? 1 : 0
 
@@ -104,10 +98,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 
   tags = var.tags
 }
-
-# ------------------------------------------------------------------------- Memory
-# Uncomment (and the matching variables in variables.tf) to also scale on memory.
-# Both metrics share the same scale-out / scale-in policies.
 
 # resource "aws_cloudwatch_metric_alarm" "memory_high" {
 #   count = var.enable_autoscaling ? 1 : 0

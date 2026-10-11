@@ -15,6 +15,7 @@ dependency "vpc" {
     redis_security_group_id = "sg-00000000000000001"
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
 dependency "alb" {
@@ -25,6 +26,7 @@ dependency "alb" {
     target_group_arn      = "arn:aws:elasticloadbalancing:eu-central-1:000000000000:targetgroup/mock/0000000000000000"
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
 dependency "iam" {
@@ -35,9 +37,9 @@ dependency "iam" {
     ecs_task_role_arn           = "arn:aws:iam::000000000000:role/mock-task"
   }
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+  mock_outputs_merge_strategy_with_state  = "shallow"
 }
 
-# Ordering only: images and secrets must exist before tasks start.
 dependencies {
   paths = ["../ecr", "../secretsmanager"]
 }

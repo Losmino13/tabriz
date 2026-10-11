@@ -1,6 +1,6 @@
 module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
-  version = "~> 3"
+  version = "~> 3.0"
 
   for_each = toset(var.repositories)
 

@@ -1,5 +1,3 @@
-# Lets the ECS tasks (and only them) reach Redis: SG-to-SG reference, not a CIDR,
-# so it follows task ENIs as Fargate replaces them.
 resource "aws_vpc_security_group_ingress_rule" "redis_from_service" {
   count = var.redis_security_group_id != null ? 1 : 0
 

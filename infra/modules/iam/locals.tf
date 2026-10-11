@@ -3,7 +3,6 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   region     = data.aws_region.current.region
 
-  # ECS task definitions must log to log groups named /ecs/<project>-<env>*.
   log_group_arn = "arn:aws:logs:${local.region}:${local.account_id}:log-group:/ecs/${local.name}*"
 
   roles = {
