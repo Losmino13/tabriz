@@ -1,0 +1,284 @@
+/*==========================================================
+  TABRIZ THEME
+  Loaded after css/style.css. Adds the Tabriz look on top of
+  the original template without changing its grid or section
+  structure:
+   - lapis lazuli, Blue Mosque turquoise, gilded gold and
+     carpet ivory palette
+   - eight-pointed star (khatam) and girih tile patterns
+   - pointed iwan arches for frames and icons
+  Palette: turquoise #12808A, lapis #14284B, gold #C9A35A,
+           brick #9C4A2B, ivory #F1E7D3, walnut #2A1E14
+==========================================================*/
+
+/*=== TYPOGRAPHY ===*/
+h1, h2, h3, h4, h5,
+.banner-title,
+.navbar-main .navbar-nav li a {
+  font-family: 'Marcellus', 'Montserrat', serif;
+  letter-spacing: 1px;
+}
+h1, h2, h3, h4, h5 {
+  font-weight: 400;
+}
+.banner-title {
+  font-weight: 400;
+  letter-spacing: 3px;
+}
+body {
+  font-size: 13px;
+  line-height: 20px;
+  color: #2A1E14;
+}
+
+/*=== SECTION BACKGROUNDS: girih tile pattern ===*/
+.about-area,
+.contact-area {
+  background-color: #F1E7D3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23C9A35A' stroke-opacity='0.22' stroke-width='1'%3E%3Cpath d='M40 10 L48 32 L70 40 L48 48 L40 70 L32 48 L10 40 L32 32 Z'/%3E%3Cpath d='M19 19 L40 28 L61 19 L52 40 L61 61 L40 52 L19 61 L28 40 Z'/%3E%3Ccircle cx='40' cy='40' r='6'/%3E%3Cpath d='M0 0 L10 10 M80 0 L70 10 M0 80 L10 70 M80 80 L70 70'/%3E%3C/g%3E%3C/svg%3E");
+}
+.work-area,
+.portfolio-area {
+  background-color: #FBF6EC;
+}
+
+/*=== SECTION HEADER: gold khatam star divider ===*/
+.section-header .section-title {
+  color: #14284B;
+}
+.section-header .section-title:after {
+  content: "";
+  display: block;
+  width: 150px;
+  height: 14px;
+  margin-top: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='14' viewBox='0 0 150 14'%3E%3Cg fill='%23C9A35A'%3E%3Crect x='0' y='6' width='60' height='2'/%3E%3Crect x='90' y='6' width='60' height='2'/%3E%3Crect x='69' y='1' width='12' height='12'/%3E%3Crect x='69' y='1' width='12' height='12' transform='rotate(45 75 7)'/%3E%3C/g%3E%3Ccircle cx='75' cy='7' r='2.5' fill='%2312808A'/%3E%3C/svg%3E") no-repeat left center;
+}
+
+/*=== NAVBAR ===*/
+.navbar-fixed {
+  border-bottom: 2px solid #C9A35A;
+  box-shadow: 0 2px 12px rgba(14, 27, 51, 0.35);
+}
+.navbar-main .navbar-nav li a:hover,
+.navbar-main .navbar-nav li.active a,
+.navbar-main .navbar-nav li.active a:focus,
+.navbar-main .navbar-nav li.active a:hover {
+  color: #E3C27A;
+}
+.navbar-main .navbar-nav li a:before {
+  background: #C9A35A;
+}
+@media only screen and (max-width: 767px) {
+  .navbar-main .navbar-collapse {
+    border-top-color: rgba(201, 163, 90, 0.4);
+  }
+}
+
+/*=== BANNER: lapis dusk over the Tabriz skyline ===*/
+.banner-area .banner-wrapper {
+  background: linear-gradient(90deg, rgba(14, 27, 51, 0.6) 0%, rgba(14, 27, 51, 0.15) 75%),
+              linear-gradient(180deg, rgba(14, 27, 51, 0.75) 0%, rgba(14, 27, 51, 0.35) 55%, rgba(14, 27, 51, 0.7) 100%);
+}
+.banner-area .banner-subtitle {
+  color: #F1E7D3;
+  text-transform: none;
+  text-shadow: 0 2px 8px rgba(14, 27, 51, 0.9);
+}
+.banner-area .banner-kicker {
+  display: inline-block;
+  color: #E3C27A;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(227, 194, 122, 0.6);
+  padding-bottom: 5px;
+}
+.banner-area .btn {
+  color: #F1E7D3;
+  border-color: #C9A35A;
+}
+.banner-area .btn:hover {
+  border-color: #C9A35A;
+}
+.banner-area .btn:after {
+  background: #C9A35A;
+}
+.banner-area a.scroll-down {
+  color: #E3C27A;
+}
+
+/*=== BUTTONS ===*/
+.btn:after, .portfolio-filter li a:after {
+  background: #12808A;
+}
+
+/*=== ABOUT: iwan-arch frame for the profile photo ===*/
+.profile-image {
+  border: 4px solid #C9A35A;
+  border-radius: 50% 50% 4px 4px / 22% 22% 4px 4px !important; /* template resets radius with !important */
+  box-shadow: 0 8px 24px rgba(20, 40, 75, 0.25);
+}
+.profile-info .profile-subtitle {
+  color: #12808A;
+}
+.social-icons a {
+  border-radius: 50% 50% 3px 3px / 40% 40% 3px 3px !important;
+}
+.social-icons a.facebook { color: #12808A; border-color: #12808A; }
+.social-icons a.twitter  { color: #14284B; border-color: #14284B; }
+.social-icons a.google   { color: #9C4A2B; border-color: #9C4A2B; }
+.social-icons a.github   { color: #2A1E14; border-color: #2A1E14; }
+.social-icons a.behance  { color: #1F5E9C; border-color: #1F5E9C; }
+.social-icons a.dribble  { color: #8C6A2A; border-color: #8C6A2A; }
+.social-icons a:hover {
+  color: #fff;
+  background: #14284B;
+  border-color: #14284B;
+}
+.skill-area .skill-progress span.climate-value {
+  float: right;
+  text-transform: none;
+  color: #9C4A2B;
+}
+.skill-area .skill-note {
+  font-size: 11px;
+  color: #6b5a48;
+}
+
+/*=== SERVICES: arch icons, tile accent ===*/
+/* equal-height cards so the floated grid never staggers */
+@media only screen and (min-width: 768px) {
+  .service-area {
+    display: flex;
+    flex-wrap: wrap;
+    clear: both;
+    width: 100%;
+  }
+  .service-area > [class*="col-"] {
+    display: flex;
+  }
+  .service-area .service-content {
+    width: 100%;
+  }
+}
+.service-area .service-content {
+  background: #F1E7D3;
+  border-top: 3px solid #12808A;
+}
+.service-area .service-content .service-icon {
+  width: 44px;
+  height: 48px;
+  line-height: 52px;
+  border-color: #C9A35A;
+  border-radius: 50% 50% 2px 2px / 55% 55% 2px 2px !important;
+}
+.service-area .service-content:hover {
+  border-top-color: #C9A35A;
+}
+.service-area .service-content:hover .service-icon {
+  background-color: #12808A;
+  border-color: #12808A;
+}
+.service-area .service-content p {
+  color: #4a3b2c;
+}
+
+/*=== COUNTER: Blue Mosque arcade under a lapis veil ===*/
+.counter-area {
+  /* solid lapis behind the photo: the parallax plugin shifts the
+     background, so uncovered strips must stay dark for white text */
+  background-color: #14284B;
+  background-image: linear-gradient(rgba(14, 27, 51, 0.72), rgba(14, 27, 51, 0.72)), url("../images/banner/project-counter.jpg");
+}
+.counter-area .counter-wrap {
+  border-color: #C9A35A;
+  background: rgba(14, 27, 51, 0.35);
+}
+.counter-area .counter-wrap .counter-icon,
+.counter-area .counter-wrap .counter-title {
+  color: #E3C27A;
+}
+.counter-area .counter-wrap:hover {
+  background: rgba(18, 128, 138, 0.45);
+}
+
+/*=== PORTFOLIO ===*/
+.portfolio-item {
+  background: #F1E7D3;
+  box-shadow: 0 2px 10px rgba(42, 30, 20, 0.25);
+  border-bottom: 3px solid #C9A35A;
+}
+.portfolio-item img {
+  object-fit: cover;
+}
+.portfolio-item .portfolio-title {
+  color: #14284B;
+  font-size: 18px;
+}
+.portfolio-item .portfolio-category {
+  color: #9C4A2B;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+}
+.mock-up {
+  background-color: rgba(20, 40, 75, 0.45);
+}
+.mock-up a {
+  color: #E3C27A;
+}
+
+/*=== TESTIMONIALS: Tabriz carpet under a lapis veil ===*/
+.testimonial-area {
+  background-color: #14284B;
+  background-image: linear-gradient(rgba(14, 27, 51, 0.82), rgba(14, 27, 51, 0.82)), url("../images/banner/testimonial.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+}
+.testimonial-area img {
+  border: 3px solid #C9A35A;
+}
+.testimonial-area h4 {
+  color: #E3C27A;
+}
+.testimonial-area p {
+  font-style: italic;
+  font-size: 14px;
+  line-height: 22px;
+}
+.testimonial-area span {
+  color: #cfd8e6;
+}
+.owl-theme .owl-controls .owl-page span {
+  background: #C9A35A;
+}
+
+/*=== CONTACT ===*/
+.contact-area .contact-info i {
+  color: #12808A;
+  width: 16px;
+  text-align: center;
+}
+.form-control {
+  background: #FBF6EC;
+  border-color: #d8c7a6;
+}
+
+/*=== FOOTER ===*/
+footer {
+  background: #14284B;
+  border-top: 3px solid #C9A35A;
+}
+footer .copyright p {
+  color: #F1E7D3;
+  margin: 0;
+}
+footer .copyright a {
+  color: #E3C27A;
+}
+footer .scroll-down {
+  color: #E3C27A;
+}

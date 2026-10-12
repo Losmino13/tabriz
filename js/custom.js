@@ -13,16 +13,16 @@ jQuery(document).ready(function($) {
 	            navbar.removeClass("navbar-fixed");
 	        }
 	    });
-	
+
 });
 
 //============================== Smooth Scroll =========================
 $(document).ready(function () {
   $("body").niceScroll({
     autohidemode:false,
-    cursorcolor: "#424242", // change cursor color in hex
+    cursorcolor: "#9C4A2B", // change cursor color in hex
     cursorwidth: "5px", // cursor width in pixel (you can also write "5px")
-    cursorborder: "1px solid #424242", // css definition for cursor border
+    cursorborder: "1px solid #9C4A2B", // css definition for cursor border
     cursorborderradius: "0", // border radius in pixel for cursor
     zindex: "1111" // change z-index for scrollbar div
   });
@@ -63,10 +63,10 @@ jQuery(document).ready(function ($) {
   // Display the progress bar calling progressbar.js
   $('.progressbar1').progressBar({
     shadow: false,
-    percentage: true,
+    percentage: false, // climate bars: values are shown in the labels
     animation: true,
     height : "20",
-    barColor : "#01accb"
+    barColor : "#12808A"
   });
 });
 
@@ -120,7 +120,7 @@ jQuery(document).ready(function () {
     return false;
   });
 
-}); // End of Portfolio Filter 
+}); // End of Portfolio Filter
 
 //============================== Portfolio Filter =========================
 $(document).ready(function () {
