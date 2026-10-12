@@ -1,3 +1,57 @@
+# Infrastructure for Devops task got from Tabz company
+
+One page site used from: https://github.com/Md-Saad/portfolio-theme
+
+
+Infra directory structure:
+
+```
+.
+├── root.hcl                 # S3 remote state, AWS provider, common inputs
+├── global                   # account-wide, shared by dev and prod
+│   ├── env.hcl
+│   └── github-oidc
+├── dev
+│   ├── env.hcl              # dev settings
+│   ├── alb
+│   ├── ecr
+│   ├── ecs
+│   ├── iam
+│   ├── secretsmanager
+│   └── vpc
+├── prod
+│   ├── env.hcl              # prod settings
+│   ├── alb
+│   ├── ecr
+│   ├── ecs
+│   ├── iam
+│   ├── secretsmanager
+│   └── vpc
+└── modules
+    ├── alb
+    ├── ecr
+    ├── ecs
+    ├── github-oidc
+    ├── iam
+    ├── secretsmanager
+    └── vpc
+```
+
+
+Document and tools used references:
+
+- https://hub.docker.com/_/nginx/
+- https://docs.terragrunt.com/getting-started/quick-start/
+- https://docs.terragrunt.com/reference/hcl/blocks/#mock-outputs
+- https://docs.terragrunt.com/reference/hcl/functions/
+- https://developer.hashicorp.com/terraform/language/functions
+- https://github.com/Md-Saad/portfolio-theme
+
+AI helper:
+
+- https://claude.ai
+
+
 # Steps to deploy infra and app
 
 Infrastructure: Terragrunt + Terraform, AWS `eu-central-1`, one AWS account, two environments (`dev`, `prod`).
@@ -66,23 +120,6 @@ terragrunt run --all plan
 terragrunt run --all apply
 ```
 
-Unit by unit instead:
-
-```bash
-cd infra/dev
-for u in vpc ecr secretsmanager alb iam ecs; do
-  (cd "$u" && terragrunt plan && terragrunt apply)
-done
-```
-
-Outputs needed later:
-
-```bash
-cd infra/dev
-(cd iam && terragrunt output -raw github_deploy_role_arn)
-(cd alb && terragrunt output -raw alb_dns_name)
-```
-
 ## 4. Prod
 
 ```bash
@@ -90,17 +127,17 @@ cd infra/prod
 terragrunt run --all plan
 terragrunt run --all apply
 
-(cd iam && terragrunt output -raw github_deploy_role_arn)
 (cd alb && terragrunt output -raw alb_dns_name)
 ```
 
-Both environments use a single NAT gateway. Prod differs from dev: Container Insights on, Fargate only (no Spot), immutable image tags, ALB deletion protection, 2 tasks with CPU autoscaling (2–6 tasks, +1 at CPU ≥ 80 %, −1 at CPU ≤ 10 %).
+Both environments use a single NAT gateway.
+
+Prod should differs from dev but for cost reasons some of these differences are turned off. Container Insights on, Fargate only (no Spot), imutable image tags, ALB deletion protection, 2 tasks with CPU autoscaling (2–6 tasks, +1 at CPU ≥ 80 %, −1 at CPU ≤ 10 %).
 
 ## 5. GitHub setup (once)
 
 1. Repository → Settings → Environments → create `dev` and `prod`.
 2. In each environment add the variable `AWS_ROLE_ARN` = `github_deploy_role_arn` output of that environment's `iam` unit.
-3. Optional: add required reviewers on `prod`. Build and deploy are separate jobs in the same environment, so a prod release asks for approval twice.
 
 The deploy role can only be assumed by jobs in `Losmino13/tabriz` that run in the GitHub environment with the same name.
 
@@ -136,24 +173,8 @@ The script only pushes the image. Deploy it with the **Deploy to ECS** workflow 
 curl -I "http://$(cd infra/dev/alb && terragrunt output -raw alb_dns_name)"
 ```
 
-## 8. Exposing the site: HTTP vs HTTPS
 
-| Option | Domain | Certificate | Status |
-|---|---|---|---|
-| ALB DNS name over HTTP | `tabriz-<env>-…elb.amazonaws.com` | none | **Current default** (`alb_certificate_arn = null`) |
-| Own domain + ACM | e.g. `www.example.com` | ACM, free, DNS-validated | Set `alb_certificate_arn` in `env.hcl`; HTTP then redirects to HTTPS |
-| CloudFront in front of the ALB | `xxxx.cloudfront.net` | CloudFront default certificate | Not implemented yet |
-
-AWS does not issue certificates for the ALB's `*.elb.amazonaws.com` name, so HTTPS on the ALB DNS name always shows a certificate warning. HTTPS without owning a domain requires CloudFront: its `*.cloudfront.net` name comes with an AWS-managed certificate.
-
-Enabling HTTPS with your own domain:
-
-1. Request a public ACM certificate in `eu-central-1` for the domain and validate it via DNS.
-2. Put the certificate ARN in `alb_certificate_arn` in `infra/<env>/env.hcl`.
-3. `cd infra/<env>/alb && terragrunt apply`
-4. Point the domain at the ALB (Route 53 alias to `alb_dns_name` / `alb_zone_id`, or a CNAME at another DNS provider).
-
-## 9. Redis (ElastiCache, not managed here)
+## 8. Redis (ElastiCache, not managed here)
 
 The network path from the ECS tasks to Redis is prepared. When the replication group is created:
 
@@ -162,26 +183,9 @@ The network path from the ECS tasks to Redis is prepared. When the replication g
 - enable `transit_encryption_enabled` and use `auth_token` from secret `tabriz/<env>/redis`,
 - replace the placeholder `host` in `secrets.redis.values` in `infra/<env>/env.hcl` with the primary endpoint, bump `secret_version` and apply `infra/<env>/secretsmanager`. This also regenerates `auth_token`.
 
-## 10. Tear down
+## 9. Tear down
 
 ```bash
 cd infra/dev
 terragrunt run --all destroy
 ```
-
-Prod has ALB deletion protection and an ECR repository without `force_delete`. Before destroying:
-
-1. Set `alb_enable_deletion_protection = false` in `infra/prod/env.hcl`.
-2. `cd infra/prod/alb && terragrunt apply`
-3. Delete the images from the prod ECR repository:
-
-   ```bash
-   aws ecr batch-delete-image --region eu-central-1 --repository-name tabriz-prod/web \
-     --image-ids "$(aws ecr list-images --region eu-central-1 --repository-name tabriz-prod/web --query 'imageIds[*]' --output json)"
-   ```
-
-4. `cd infra/prod && terragrunt run --all destroy`
-
-A partially failed `run --all destroy` can be re-run: dependency outputs fall back to mocks for units that are already gone.
-
-Destroy `global/github-oidc` last, after both environments are gone. ECS task definition revisions stay in AWS (`skip_destroy = true`).
